@@ -1,42 +1,56 @@
 import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
-import { createClient } from "@supabase/supabase-js";
+import { supabase } from "../../../../lib/supabase";
 
-const supabaseUrl = "https://lznvwvpkygwodiqvmyqy.supabase.co";
-const supabaseKey =
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx6bnZ3dnBreWd3b2RpcXZteXF5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjMwNDE3MjcsImV4cCI6MjAzODYxNzcyN30.NZKqkjC1T7_4blHJdvDF_-UMt5U-pPCLCiuiiwYB3KM";
-const supabase = createClient(supabaseUrl, supabaseKey);
+interface IUser {
+  id: string;
+  name?: string | null | undefined;
+  email?: string | null | undefined;
+  image?: string | null | undefined;
+}
 
 export default NextAuth({
   providers: [
     CredentialsProvider({
+      name: "Credentials",
+      credentials: {
+        email: { label: "Email", type: "text" },
+        password: { label: "Password", type: "password" },
+      },
       async authorize(credentials) {
-        if (!credentials) {
-          return null;
+        if (!credentials?.email || !credentials?.password) {
+          throw new Error("Email and password are required");
         }
 
-        const { data, error } = await supabase
-          .from("login")
-          .select("name, email, password");
+        const { data, error } = await supabase.auth.signInWithPassword({
+          email: credentials.email,
+          password: credentials.password,
+        });
 
-        if (error) {
-          console.error("Erro ao buscar dados:", error);
-          return null;
+        if (error || !data.user) {
+          throw new Error("Invalid email or password");
         }
 
-        const user = data.find(
-          (item: any) =>
-            item.email === credentials.email &&
-            item.password === credentials.password
-        );
-
-        if (user) {
-          console.log(user)
-          return  user ;
-        }
-
-        return null;
+        return { id: data.user.id, email: data.user.email };
       },
     }),
   ],
+  session: {
+    jwt: true,
+  } as any,
+  callbacks: {
+    async jwt({ token, user }: { token: any; user: IUser }) {
+      if (user) {
+        token.id = user.id;
+      }
+      return token;
+    },
+    async session({ session, token }: { session: any; token: any }) {
+      if (session.user) {
+        session.user.id = token.id;
+        return session;
+      }
+    },
+  },
+  secret: process.env.NEXTAUTH_SECRET,
 });

@@ -1,11 +1,8 @@
 "use client";
 
-import { Inter } from "next/font/google";
 import { useState } from "react";
 import { signIn } from "next-auth/react";
-import { useRouter } from "next/router";
-
-const inter = Inter({ subsets: ["latin"] });
+import { useRouter } from "next/navigation";
 
 export default function Home() {
   const [email, setEmail] = useState("");

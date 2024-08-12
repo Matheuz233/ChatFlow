@@ -2,7 +2,7 @@ import LogoutButton from "@/components/LogoutButton";
 import { getSession } from "next-auth/react";
 import React, { useEffect, useState } from "react";
 import io from "socket.io-client";
-
+import { supabase } from "../../lib/supabase";
 
 export async function getServerSideProps(context: any) {
   const session = await getSession(context);
@@ -27,12 +27,21 @@ export default function Chat({ session }: any) {
   const [message, setMessage] = useState<string>("");
   const [allMessages, setAllMessages] = useState<any[]>([]);
   const [id, setId] = useState<number>(0);
+  const [name, setName] = useState<string>("");
 
-  console.log(session)
+  useEffect(() => {
+    const fetchData = async () => {
+      const { data, error } = await supabase
+        .from("login")
+        .select("*")
+        .eq("user_id", session?.user?.id);
 
-  const username = session?.user?.name;
-
-  // console.log(session);
+      if (data) {
+        setName(data[0].name);
+      }
+    };
+    fetchData();
+  }, [session?.user?.id]);
 
   socketInitializer();
 
@@ -63,7 +72,7 @@ export default function Chat({ session }: any) {
 
     socket.emit("send-message", {
       idMenssagem,
-      username,
+      name,
       message,
     });
 
@@ -79,7 +88,7 @@ export default function Chat({ session }: any) {
 
       <div className="flex justify-between items-center pb-2">
         <div className="flex flex-col">
-          <label>Seja Bem-Vindo(a) {username}</label>
+          <label>Seja Bem-Vindo(a) {name}</label>
         </div>
 
         <LogoutButton />
@@ -89,7 +98,7 @@ export default function Chat({ session }: any) {
         {allMessages.map(({ username, message }, id) => (
           <div key={id} className="flex items-start mb-4">
             <div className="chat-image avatar bg-blue-500 text-white w-10 h-10 rounded-full flex items-center justify-center text-xl font-bold mr-3">
-              {username[0]}
+              {name[0]}
             </div>
             <div className="chat-content">
               <div className="chat-header text-white font-semibold">
