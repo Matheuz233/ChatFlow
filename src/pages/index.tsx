@@ -1,31 +1,25 @@
 "use client";
 
-import { useState } from "react";
-import { signIn } from "next-auth/react";
-import { useRouter } from "next/navigation";
+import LoginForm from "@/components/LoginForm";
+import Image from "next/image";
 
 export default function Home() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const router = useRouter();
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    const result = await signIn("credentials", {
-      redirect: false,
-      email,
-      password,
-    });
-
-    if (result) {
-      router.push("/chat");
-    }
-  };
-
   return (
-    <main className="hero bg-[#1F2937] min-h-screen">
-      <div className="hero-content">
+    <main className="flex flex-row min-h-screen">
+      <div className="bg-[#313131] hidden lg:flex lg:justify-center lg:items-center  lg:w-1/2">
+        {" "}
+        <Image
+          src="chat-img.svg"
+          width={500}
+          height={500}
+          alt="Imagem principal"
+        />
+      </div>
+      <div className="bg-white w-screen flex justify-center items-center lg:w-1/2">
+        <LoginForm />
+      </div>
+      
+      {/* <div className="hero-content">
         <div className="card bg-base-100 min-w-80 shrink-0 shadow-2xl lg:min-w-96">
           <form onSubmit={handleSubmit} className="card-body">
             <div className="form-control">
@@ -57,7 +51,7 @@ export default function Home() {
             </div>
           </form>
         </div>
-      </div>
+      </div> */}
     </main>
   );
 }
