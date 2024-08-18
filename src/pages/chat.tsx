@@ -81,13 +81,13 @@ export default function Chat({ session }: any) {
   }
 
   return (
-    <div className="h-screen flex flex-col bg-gray-800 p-6">
+    <div className="h-screen flex flex-col bg-[#313131] p-6">
       <h1 className="text-3xl font-bold text-slate-50 mb-6 text-center">
-        Bate-Papo
+        ChatFlow
       </h1>
 
       <div className="flex justify-between items-center pb-2">
-        <div className="flex flex-col">
+        <div className="flex flex-col font-bold">
           <label>Seja Bem-Vindo(a) {name}</label>
         </div>
 
@@ -118,10 +118,11 @@ export default function Chat({ session }: any) {
         <input
           name="message"
           placeholder="Escreva sua mensagem aqui..."
-          className="input input-bordered w-full p-3 rounded-lg bg-gray-600 text-white"
+          className="input input-bordered w-full p-3 rounded-lg bg-gray-700 text-white"
           value={message}
           onChange={(e) => setMessage(e.target.value)}
           autoComplete={"off"}
+          required
         />
         <div className="mt-2">
           Pressione <kbd className="kbd kbd-sm">Enter</kbd> para enviar a
